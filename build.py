@@ -241,6 +241,7 @@ def build_all(dry_run=False):
     print(f"Found {total} law files in {INPUT_DIR}")
 
     ok = 0
+    updated = 0
     errors = 0
 
     for i, xml_path in enumerate(xml_files, 1):
@@ -255,12 +256,16 @@ def build_all(dry_run=False):
         if dry_run:
             print(f"  [{i}/{total}] {xml_path.name} -> {out_path.name}  (dry run)")
         else:
-            out_path.write_text(content, encoding="utf-8")
-            print(f"  [{i}/{total}] {xml_path.name} -> {out_path.name}")
+            existing = out_path.read_text(encoding="utf-8") if out_path.exists() else None
+            if existing != content:
+                out_path.write_text(content, encoding="utf-8")
+                status = "updated" if existing else "new"
+                print(f"  [{i}/{total}] {xml_path.name} -> {out_path.name}  [{status}]")
+                updated += 1
 
         ok += 1
 
-    print(f"\nDone: {ok} converted, {errors} errors.")
+    print(f"\nDone: {ok} processed, {updated} changed, {errors} errors.")
     if not dry_run:
         print(f"Output: {OUTPUT_DIR}")
 

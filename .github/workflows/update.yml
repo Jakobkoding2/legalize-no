@@ -1,0 +1,52 @@
+name: Nightly update
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 03:00 UTC = 04:00/05:00 Norwegian time
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install beautifulsoup4
+
+      - name: Download latest laws from Lovdata
+        run: |
+          curl -fsSL \
+            "https://api.lovdata.no/v1/publicData/get/gjeldende-lover.tar.bz2" \
+            -o lover.tar.bz2
+          mkdir -p nl
+          tar xf lover.tar.bz2 --strip-components=1 -C nl
+          rm lover.tar.bz2
+
+      - name: Build Markdown files
+        run: python build.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet no/ || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "lovdata-bot"
+          git config user.email "bot@legalize-no"
+          git add no/
+          COUNT=$(git diff --cached --name-only | wc -l | tr -d ' ')
+          DATE=$(date -u +%Y-%m-%d)
+          git commit -m "[oppdatering] ${DATE} — ${COUNT} lov(er) endret"
+          git push
