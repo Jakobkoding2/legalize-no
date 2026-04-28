@@ -1,28 +1,41 @@
 # legalize-no
 
-Norsk lovgivning som et Git-repo — hver lov er en Markdown-fil, hver endring er en commit.
+Norwegian legislation as a Git repository — every law is a Markdown file, every amendment is a commit.
 
-**781 lover** fra 1687 til i dag.
+**781 laws** spanning from 1687 to the present day.
 
-Inspirert av [legalize-es](https://github.com/legalize-dev/legalize-es).
+Inspired by [legalize-es](https://github.com/legalize-dev/legalize-es).
 
 ---
 
-## Struktur
+## Why
+
+Norwegian law is publicly available via Lovdata's open API, but it's not version-controlled or easy to diff. This project makes the full body of Norwegian legislation:
+
+- **Searchable** with standard text tools (`grep`, `fzf`, `ripgrep`)
+- **Diffable** — track exactly what changed between amendments
+- **Programmable** — structured YAML frontmatter on every file for easy parsing
+- **Offline** — clone once, search forever
+
+Useful for legal tech, NLP training data, academic research, and anyone who wants to `git log` the history of Norwegian law.
+
+---
+
+## Structure
 
 ```
 no/
-  LOV-1814-05-17.md       ← Grunnloven
-  LOV-2005-06-17-62.md    ← Arbeidsmiljøloven
-  LOV-1902-05-22-10.md    ← Straffeloven (1902)
+  LOV-1814-05-17.md       ← Grunnloven (Constitution)
+  LOV-2005-06-17-62.md    ← Arbeidsmiljøloven (Working Environment Act)
+  LOV-1902-05-22-10.md    ← Straffeloven 1902 (Penal Code)
   ...
 ```
 
-Hvert filnavn følger Lovdatas identifikator: `LOV-ÅÅÅÅ-MM-DD-NR`.
+Filenames follow Lovdata's identifier format: `LOV-YYYY-MM-DD-NR`.
 
-## Filformat
+## File format
 
-Hver lov er en Markdown-fil med YAML-frontmatter:
+Each law is a Markdown file with YAML frontmatter:
 
 ```markdown
 ---
@@ -43,31 +56,24 @@ subjects: ["Grunnloven", "Stortinget"]
 ...
 ```
 
-## Kilde og lisens
+## Source and license
 
-Lovtekstene er hentet fra [Lovdata](https://lovdata.no/) sitt åpne API og er lisensiert under [NLOD 2.0](https://data.norge.no/nlod/en/2.0).
+Legal texts are fetched from [Lovdata](https://lovdata.no/)'s open API and licensed under [NLOD 2.0](https://data.norge.no/nlod/en/2.0).
 
-Data hentes fra:
-- Lover: `https://api.lovdata.no/v1/publicData/get/gjeldende-lover.tar.bz2`
+Data source: `https://api.lovdata.no/v1/publicData/get/gjeldende-lover.tar.bz2`
 
-## Bygge lokalt
+## Build locally
 
-Krev Python 3.10+ og BeautifulSoup4:
+Requires Python 3.10+ and BeautifulSoup4.
 
-```bash
-pip install beautifulsoup4
+Install dependencies, download the source data, and run the build script:
+
 ```
-
-Last ned og pakk ut kildedataene:
-
-```bash
-curl -L https://api.lovdata.no/v1/publicData/get/gjeldende-lover.tar.bz2 -o lover.tar.bz2
-tar xf lover.tar.bz2
-# Plasser innholdet i nl/
+pip install beautifulsoup4
 python build.py
 ```
 
-## Relaterte prosjekter
+## Related projects
 
-- [legalize-es](https://github.com/legalize-dev/legalize-es) — Spansk lovgivning som Git-repo
-- [legalize](https://github.com/legalize-dev/legalize) — Paraplyprosjekt
+- [legalize-es](https://github.com/legalize-dev/legalize-es) — Spanish legislation as a Git repo
+- [legalize](https://github.com/legalize-dev/legalize) — Umbrella project
