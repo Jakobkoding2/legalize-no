@@ -1,0 +1,6 @@
+nl/
+*.tar.bz2
+*.bz2
+__pycache__/
+*.pyc
+.DS_Store
